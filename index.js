@@ -208,7 +208,7 @@ const commands = [
   // /ip
   new SlashCommandBuilder()
     .setName("ip")
-    .setDescription("Show The Heroes SMP server IP"),
+    .setDescription("Show Haven mc server IP"),
 
   // /ig
   new SlashCommandBuilder()
@@ -395,7 +395,7 @@ client.on(
     ) {
 
       const embed = new EmbedBuilder()
-        .setTitle("🌐 THE HEROES SMP")
+        .setTitle("🌐 HAVEN MC ")
         .setDescription(
           "🎮 **Java Edition**\n" +
           "`amd-9-1.skyraincloud.in`\n\n" +
