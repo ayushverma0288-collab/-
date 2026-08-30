@@ -1,0 +1,12 @@
+{
+  "name": "heroes-roll-bot",
+  "version": "1.0.0",
+  "description": "The Heroes SMP Discord Coins & Roll Bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.25.1"
+  }
+}
