@@ -395,7 +395,7 @@ client.on(
     ) {
 
       const embed = new EmbedBuilder()
-        .setTitle("🌐 HAVEN MC ")
+        .setTitle("🌐 Haven Mc")
         .setDescription(
           "🎮 **Java Edition**\n" +
           "`amd-9-1.skyraincloud.in`\n\n" +
@@ -408,7 +408,7 @@ client.on(
         )
         .setFooter({
           text:
-            "The Heroes SMP • Join & Enjoy!"
+            "Haven Mc • Join & Enjoy!"
         })
         .setColor(0x8B5CF6);
 
