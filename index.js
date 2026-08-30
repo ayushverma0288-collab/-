@@ -191,4 +191,4 @@ async function registerCommands() {
       }
     );
 
-    console.log("
+    console.log("Coins loaded successfully!");
