@@ -64,7 +64,6 @@ function saveCoins() {
       COINS_FILE,
       JSON.stringify(data, null, 2)
     );
-
   } catch (error) {
     console.error("Failed to save coins:", error);
   }
@@ -145,10 +144,31 @@ function getReward() {
 // =========================
 
 const commands = [
+
+  // /c
   new SlashCommandBuilder()
     .setName("c")
     .setDescription("Check your Coins"),
 
+  // /addcoins
+  new SlashCommandBuilder()
+    .setName("addcoins")
+    .setDescription("Add coins to a user (Admin only)")
+    .addUserOption(option =>
+      option
+        .setName("user")
+        .setDescription("User to give coins")
+        .setRequired(true)
+    )
+    .addIntegerOption(option =>
+      option
+        .setName("amount")
+        .setDescription("Amount of coins")
+        .setRequired(true)
+        .setMinValue(1)
+    ),
+
+  // /roll
   new SlashCommandBuilder()
     .setName("roll")
     .setDescription("Roll for a random Minecraft reward")
@@ -158,6 +178,7 @@ const commands = [
         .setDescription("Your Minecraft username")
         .setRequired(true)
     )
+
 ].map(command => command.toJSON());
 
 // =========================
@@ -170,6 +191,7 @@ const rest = new REST({
 
 async function registerCommands() {
   try {
+
     console.log("Registering slash commands...");
 
     await rest.put(
@@ -194,9 +216,13 @@ async function registerCommands() {
 // =========================
 
 client.once("ready", async () => {
-  console.log(`Logged in as ${client.user.tag}`);
+
+  console.log(
+    `Logged in as ${client.user.tag}`
+  );
 
   await registerCommands();
+
 });
 
 // =========================
@@ -204,27 +230,41 @@ client.once("ready", async () => {
 // =========================
 
 client.on("messageCreate", async message => {
+
   if (message.author.bot) return;
 
   const userId = message.author.id;
 
-  const oldCoins = coins.get(userId) || 0;
-  const newCoins = oldCoins + 2;
+  const oldCoins =
+    coins.get(userId) || 0;
 
-  coins.set(userId, newCoins);
+  const newCoins =
+    oldCoins + 2;
+
+  coins.set(
+    userId,
+    newCoins
+  );
 
   saveCoins();
 
-  // Notification every 70 coins earned
-  const oldMilestone = Math.floor(oldCoins / 70);
-  const newMilestone = Math.floor(newCoins / 70);
+  // Notification every 70 coins
+
+  const oldMilestone =
+    Math.floor(oldCoins / 70);
+
+  const newMilestone =
+    Math.floor(newCoins / 70);
 
   if (newMilestone > oldMilestone) {
+
     await message.channel.send(
       `🪙 **${message.author} reached ${newMilestone * 70} Coins!**\n` +
       `💰 Current Balance: **${newCoins} Coins**`
     );
+
   }
+
 });
 
 // =========================
@@ -232,16 +272,20 @@ client.on("messageCreate", async message => {
 // =========================
 
 client.on("interactionCreate", async interaction => {
+
   if (!interaction.isChatInputCommand()) return;
 
-  const userId = interaction.user.id;
+  const userId =
+    interaction.user.id;
 
   // =========================
   // /c
   // =========================
 
   if (interaction.commandName === "c") {
-    const balance = coins.get(userId) || 0;
+
+    const balance =
+      coins.get(userId) || 0;
 
     const embed = new EmbedBuilder()
       .setTitle("🪙 Your Coins")
@@ -254,6 +298,55 @@ client.on("interactionCreate", async interaction => {
       embeds: [embed],
       ephemeral: true
     });
+
+  }
+
+  // =========================
+  // /addcoins
+  // =========================
+
+  if (interaction.commandName === "addcoins") {
+
+    // Admin only
+
+    if (
+      !interaction.memberPermissions ||
+      !interaction.memberPermissions.has("Administrator")
+    ) {
+
+      return interaction.reply({
+        content:
+          "❌ You don't have permission to use this command!",
+        ephemeral: true
+      });
+
+    }
+
+    const user =
+      interaction.options.getUser("user");
+
+    const amount =
+      interaction.options.getInteger("amount");
+
+    const oldCoins =
+      coins.get(user.id) || 0;
+
+    const newCoins =
+      oldCoins + amount;
+
+    coins.set(
+      user.id,
+      newCoins
+    );
+
+    saveCoins();
+
+    return interaction.reply({
+      content:
+        `✅ Added **${amount} Coins** to ${user}!\n` +
+        `🪙 New Balance: **${newCoins} Coins**`
+    });
+
   }
 
   // =========================
@@ -261,45 +354,59 @@ client.on("interactionCreate", async interaction => {
   // =========================
 
   if (interaction.commandName === "roll") {
-    const balance = coins.get(userId) || 0;
+
+    const balance =
+      coins.get(userId) || 0;
 
     const username =
       interaction.options.getString(
         "minecraft_username"
       );
 
-    // Check balance
+    // Need 100 coins
+
     if (balance < 100) {
+
       return interaction.reply({
         content:
           `❌ You need **100 Coins** to roll!\n` +
           `🪙 Your balance: **${balance} Coins**`,
         ephemeral: true
       });
+
     }
 
     // Remove 100 coins
-    coins.set(userId, balance - 100);
+
+    coins.set(
+      userId,
+      balance - 100
+    );
 
     saveCoins();
 
-    // Spin animation
+    // Spin
+
     await interaction.reply(
       `🎰 **SPINNING...**\n\n` +
       `🪵 ➜ 🍎 ➜ 💎 ➜ 🔥 ➜ 🟣 ➜ 💰 ➜ ❓`
     );
 
-    // Wait 2.5 seconds
+    // 2.5 second animation
+
     await new Promise(
-      resolve => setTimeout(resolve, 2500)
+      resolve =>
+        setTimeout(resolve, 2500)
     );
 
-    // Get random reward
-    const reward = getReward();
+    const reward =
+      getReward();
 
-    const remaining = coins.get(userId);
+    const remaining =
+      coins.get(userId);
 
-    // Result embed
+    // Result
+
     const embed = new EmbedBuilder()
       .setTitle("🎉 ROLL COMPLETE!")
       .setDescription(
@@ -308,7 +415,9 @@ client.on("interactionCreate", async interaction => {
         `✨ **Rarity:** ${reward.rarity}\n\n` +
         `🪙 **Remaining Coins:** ${remaining}`
       )
-      .setThumbnail(reward.image)
+      .setThumbnail(
+        reward.image
+      )
       .setFooter({
         text:
           "The Heroes SMP • Reward must be given manually"
@@ -316,25 +425,36 @@ client.on("interactionCreate", async interaction => {
       .setColor(0x8B5CF6);
 
     await interaction.editReply({
+
       content:
         `🎰 **${interaction.user.username} rolled!**`,
+
       embeds: [embed]
+
     });
+
   }
+
 });
 
 // =========================
-// SAVE BEFORE SHUTDOWN
+// SAVE ON SHUTDOWN
 // =========================
 
 process.on("SIGINT", () => {
+
   saveCoins();
+
   process.exit(0);
+
 });
 
 process.on("SIGTERM", () => {
+
   saveCoins();
+
   process.exit(0);
+
 });
 
 // =========================
