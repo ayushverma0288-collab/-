@@ -191,4 +191,4 @@ async function registerCommands() {
       }
     );
 
-    console.log("Coins loaded successfully!");
+    console.log("Slash commands registered!");
