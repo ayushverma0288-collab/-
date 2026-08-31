@@ -398,10 +398,10 @@ client.on(
         .setTitle("🌐 Haven Mc")
         .setDescription(
           "🎮 **Java Edition**\n" +
-          "`amd-9-1.skyraincloud.in`\n\n" +
+          "`havenmc.skyraincloud.fun`\n\n" +
 
           "📱 **Bedrock Edition**\n" +
-          "`amd-9-1.skyraincloud.in`\n\n" +
+          "`havenmc.skyraincloud.fun`\n\n" +
 
           "🔌 **Bedrock Port**\n" +
           "`19144`"
